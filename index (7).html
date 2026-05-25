@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strickland Global — Educational Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #2d3250;
+    --teal: #62B3AE;
+    --cream: #f9f6f0;
+    --warm-white: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #444455;
+    --text-light: #888899;
+    --rule: #e0ddd8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Source Sans 3', Georgia, sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    line-height: 1.7;
+  }
+
+  /* =====================
+     PASSWORD GATE
+  ===================== */
+  #gate {
+    position: fixed;
+    inset: 0;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    padding: 2rem;
+  }
+
+  #gate.hidden { display: none; }
+
+  .gate-inner {
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .gate-rule {
+    width: 40px;
+    height: 2px;
+    background: var(--teal);
+    margin: 0 auto 2rem;
+  }
+
+  .gate-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-style: italic;
+    color: var(--warm-white);
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+
+  .gate-sub {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+  }
+
+  #gate input {
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 2px;
+    color: var(--warm-white);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #gate input:focus { border-color: var(--teal); }
+  #gate input::placeholder { color: rgba(255,255,255,0.3); }
+
+  #gate button {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--teal);
+    border: none;
+    border-radius: 2px;
+    color: var(--navy);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  #gate button:hover { opacity: 0.88; }
+
+  .gate-error {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: #e07070;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .gate-error.visible { opacity: 1; }
+
+  /* =====================
+     MAIN CONTENT
+  ===================== */
+  #main { opacity: 0; transition: opacity 0.6s; }
+  #main.visible { opacity: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(45,50,80,0.97);
+    backdrop-filter: blur(8px);
+    padding: 1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(98,179,174,0.2);
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--teal);
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--teal); }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 3rem 6rem;
+  }
+
+  .hero-bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.06;
+  }
+
+  .hero-bg-shape.one {
+    width: 600px; height: 600px;
+    background: var(--teal);
+    top: -200px; right: -200px;
+  }
+
+  .hero-bg-shape.two {
+    width: 400px; height: 400px;
+    background: #8899cc;
+    bottom: -100px; left: -100px;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 600;
+    color: var(--warm-white);
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .hero-body {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+  }
+
+  .hero-rule {
+    width: 48px;
+    height: 2px;
+    background: var(--teal);
+    margin: 0 auto;
+    opacity: 0.7;
+  }
+
+  /* SECTION SHARED */
+  section {
+    padding: 6rem 3rem;
+  }
+
+  .section-inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-body {
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    line-height: 1.85;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-body:last-child { margin-bottom: 0; }
+
+  hr.section-rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 4rem 0;
+  }
+
+  /* PHILOSOPHY */
+  .philosophy { background: var(--warm-white); }
+
+  .pull-quote {
+    border-left: 3px solid var(--teal);
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--navy);
+    line-height: 1.6;
+  }
+
+  /* ORCHID INTERLUDE */
+  .orchid-section {
+    background: var(--navy);
+    padding: 5rem 3rem;
+    overflow: hidden;
+  }
+
+  .orchid-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .orchid-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-style: italic;
+    color: var(--warm-white);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+  }
+
+  .orchid-attr {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .orchid-illustration {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .orchid-svg {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    filter: drop-shadow(0 8px 32px rgba(155,89,182,0.25));
+    animation: orchid-sway 8s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+
+  @keyframes orchid-sway {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+  }
+
+  @media (max-width: 768px) {
+    .orchid-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .orchid-svg { max-width: 180px; margin: 0 auto; }
+  }
+
+  /* TWO TIERS */
+  .tiers { background: var(--cream); }
+
+  .tier-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .tier-card {
+    background: var(--warm-white);
+    border: 1px solid var(--rule);
+    padding: 2rem;
+    position: relative;
+  }
+
+  .tier-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--navy);
+  }
+
+  .tier-card.accent::before { background: var(--teal); }
+
+  .tier-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.6rem;
+  }
+
+  .tier-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+  }
+
+  .tier-card p {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.75;
+  }
+
+  /* CREDENTIALING */
+  .credentials { background: var(--navy); }
+
+  .credentials .section-title { color: var(--warm-white); }
+  .credentials .section-body { color: rgba(255,255,255,0.65); }
+  .credentials .section-eyebrow { color: var(--teal); }
+
+  .credential-levels {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .credential-level {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 2rem;
+    align-items: start;
+    padding: 2rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 3px solid var(--teal);
+  }
+
+  .credential-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--teal);
+    line-height: 1.3;
+  }
+
+  .credential-sublabel {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-top: 0.3rem;
+  }
+
+  .credential-desc {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.75;
+  }
+
+  .credential-badge {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    background: var(--teal);
+    padding: 0.3rem 0.75rem;
+    border-radius: 1px;
+  }
+
+  /* FOUNDERS COURSE */
+  .founders { background: var(--warm-white); }
+
+  .units {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .unit {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1.5rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .unit:last-child { border-bottom: none; }
+
+  .unit-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-style: italic;
+    color: var(--teal);
+    opacity: 0.4;
+    line-height: 1;
+    padding-top: 0.2rem;
+  }
+
+  .unit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .unit-body {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.75;
+  }
+
+  /* ROADMAP */
+  .roadmap { background: var(--cream); }
+
+  .roadmap-grid {
+    margin-top: 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .roadmap-phase {
+    background: var(--warm-white);
+    padding: 1.75rem 1.5rem;
+  }
+
+  .phase-month {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  .phase-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .phase-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .phase-items li {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .phase-items li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+    font-size: 0.75rem;
+  }
+
+  /* INFRASTRUCTURE */
+  .infrastructure { background: var(--warm-white); }
+
+  .infra-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .infra-card {
+    padding: 1.75rem;
+    border: 1px solid var(--rule);
+    background: var(--cream);
+  }
+
+  .infra-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.4rem;
+  }
+
+  .infra-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .infra-desc {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+
+  .infra-cost {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.05em;
+  }
+
+  /* CLOSING */
+  .closing {
+    background: var(--navy);
+    text-align: center;
+    padding: 7rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .closing-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(98,179,174,0.08) 0%, transparent 70%);
+  }
+
+  .closing-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .closing-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--warm-white);
+    line-height: 1.4;
+    margin-bottom: 1rem;
+  }
+
+  .closing-sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .closing-rule {
+    width: 40px;
+    height: 2px;
+    background: var(--teal);
+    margin: 1.5rem auto 0;
+    opacity: 0.6;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #1a1d35;
+    padding: 1.5rem 3rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.06em;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .tier-cards { grid-template-columns: 1fr; }
+    .credential-level { grid-template-columns: 1fr; gap: 0.75rem; }
+    .roadmap-grid { grid-template-columns: 1fr 1fr; }
+    .infra-grid { grid-template-columns: 1fr; }
+    .unit { grid-template-columns: 50px 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .roadmap-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-inner">
+    <div class="gate-rule"></div>
+    <h1 class="gate-title">Strickland Global<br>Educational Ecosystem</h1>
+    <p class="gate-sub">Nichols Education Group — Confidential</p>
+    <input type="password" id="pw-input" placeholder="Enter access code" autocomplete="off">
+    <button onclick="checkPassword()">Enter</button>
+    <p class="gate-error" id="gate-error">Incorrect access code. Please try again.</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-brand">Strickland Global — Educational Ecosystem</span>
+    <ul class="nav-links">
+      <li><a href="#philosophy">Philosophy</a></li>
+      <li><a href="#tiers">Ecosystem</a></li>
+      <li><a href="#credentials">Credentials</a></li>
+      <li><a href="#founders">Founders Course</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-shape one"></div>
+    <div class="hero-bg-shape two"></div>
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Nichols Education Group for Strickland Global — May 2026</p>
+      <h1 class="hero-title">A culture of learning<br>built to carry <em>the work forward.</em></h1>
+      <p class="hero-body">What follows is not a course development plan. It is the architecture of an educational ecosystem — designed to extend the Strickland model further than any single person can carry it.</p>
+      <div class="hero-rule"></div>
+    </div>
+  </section>
+
+  <!-- PHILOSOPHY -->
+  <section class="philosophy" id="philosophy">
+    <div class="section-inner">
+      <p class="section-eyebrow">The Foundation</p>
+      <h2 class="section-title">What we are building</h2>
+      <p class="section-body">The Strickland model has always believed that environments shape what people become. This educational ecosystem is built on that same conviction — that how we teach is as important as what we teach, and that the experience of learning about this work should reflect the values of the work itself.</p>
+
+      <div class="pull-quote">What we are building is not a curriculum. It is a culture of learning.</div>
+
+      <p class="section-body">For decades, the Strickland model spread through relationships, site visits, and the force of one extraordinary person's presence. That is not nothing. It built centers across this country and beyond, and changed thousands of lives. But it is not enough for what comes next.</p>
+      <p class="section-body">What this educational ecosystem makes possible is a future in which the model no longer depends on any single person to carry it. Where a community leader in a city Bill Strickland has never visited can learn what they need to know, earn the credential that opens doors, and build something that lasts.</p>
+    </div>
+  </section>
+
+  <!-- TWO TIERS -->
+  <section class="tiers" id="tiers">
+    <div class="section-inner">
+      <p class="section-eyebrow">The Architecture</p>
+      <h2 class="section-title">Two tiers. One vision.</h2>
+      <p class="section-body">This ecosystem operates on two levels by design. The first is open to anyone. The second is for those who are called to build. Together they form something the Strickland model has always embodied: a door open to everyone, and a deeper room for those willing to do the work to enter it.</p>
+
+      <div class="tier-cards">
+        <div class="tier-card">
+          <p class="tier-tag">Tier One — Open</p>
+          <h3>The Open Ecosystem</h3>
+          <p>A curious educator, a community organizer, a workforce developer, a philanthropist — anyone can enter, explore, and take something useful away. The ideas here are portable. A principal can apply Strickland thinking to a school. A manager can apply it to a workplace. A neighbor can apply it to a block. This tier asks nothing except curiosity and good faith.</p>
+        </div>
+        <div class="tier-card accent">
+          <p class="tier-tag">Tier Two — Gated</p>
+          <h3>The Credentialed Pathway</h3>
+          <p>For those called to build. Structured, sequential, and credentialed. It asks more because the work asks more. Those who move through it emerge not just informed but prepared — ready to make the case to a community, a funder, a board, that they understand what it takes to create a center that lasts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREDENTIALS -->
+  <section class="credentials" id="credentials">
+    <div class="section-inner">
+      <p class="section-eyebrow">Recognition and Credentials</p>
+      <h2 class="section-title">Three levels. Each one earned.</h2>
+      <p class="section-body">The credentialing system is designed to be legible, stackable, and meaningful at every level. All three designations carry digital badges built for LinkedIn profiles, email signatures, organizational bios, and grant applications — because visibility matters.</p>
+
+      <div class="credential-levels">
+
+        <div class="credential-level">
+          <div>
+            <p class="credential-label">Strickland Global Fellow</p>
+            <p class="credential-sublabel">Level One</p>
+          </div>
+          <div>
+            <p class="credential-desc">Earned through intentional participation in the Strickland Global network, including the annual convening. Attendance alone does not confer this designation. A Fellow has engaged with the community of practice, contributed to shared learning, and made a documented commitment to this work. The badge is annual and dated — renewing each year through continued engagement. Multiple consecutive Fellow badges communicate sustained commitment to any external audience.</p>
+            <span class="credential-badge">Badge: Strickland Global Fellow — 2026</span>
+          </div>
+        </div>
+
+        <div class="credential-level">
+          <div>
+            <p class="credential-label">Strickland Global Ambassador</p>
+            <p class="credential-sublabel">Level Two</p>
+          </div>
+          <div>
+            <p class="credential-desc">Earned through completion of foundational coursework covering the Strickland philosophy, environment, community, and human dignity. This designation signals that a person has internalized the philosophy at a level that allows them to apply it meaningfully in their own context. They may not be building a center — but they are building something better because of what they have learned.</p>
+            <span class="credential-badge">Badge: Strickland Global Ambassador</span>
+          </div>
+        </div>
+
+        <div class="credential-level">
+          <div>
+            <p class="credential-label">Strickland Global Certified</p>
+            <p class="credential-sublabel">Level Three</p>
+          </div>
+          <div>
+            <p class="credential-desc">The designation for those who have completed the full credentialing pathway and demonstrated readiness to develop, lead, or govern a center grounded in the Strickland model. This credential carries a specialization that reflects the specific work the individual is prepared to do. Current specializations include Founder, Board Governance, and Executive Leadership. Additional specializations will be developed as the network grows.</p>
+            <span class="credential-badge">Badge: Strickland Global Certified: Founder</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDERS COURSE -->
+  <section class="founders" id="founders">
+    <div class="section-inner">
+      <p class="section-eyebrow">September 2026 Launch</p>
+      <h2 class="section-title">The Founders Course</h2>
+      <p class="section-body">The first credentialed offering in the Strickland Global educational ecosystem and the gateway to the Strickland Global Certified: Founder designation. A five to six week course designed for individuals and teams who are exploring or actively pursuing the creation of a center grounded in the Strickland model.</p>
+
+      <div class="units">
+        <div class="unit">
+          <div class="unit-num">01</div>
+          <div>
+            <h3 class="unit-title">The Strickland Philosophy</h3>
+            <p class="unit-body">Establishes the intellectual and moral foundation of the model. Learners engage deeply with the core principles — that environments shape behavior, that people are assets, that beauty and dignity are not luxuries but prerequisites. This unit does not simply describe the philosophy. It asks learners to examine their own assumptions about community, potential, and what institutions owe the people they serve.</p>
+          </div>
+        </div>
+        <div class="unit">
+          <div class="unit-num">02</div>
+          <div>
+            <h3 class="unit-title">Community Need and Engagement</h3>
+            <p class="unit-body">Moves from philosophy into context. Before a center can be built, a community must be understood. This unit develops the capacity to assess genuine community need, build authentic relationships with local stakeholders, and design programs that respond to what employers and community members actually require — rather than what founders assume they need.</p>
+          </div>
+        </div>
+        <div class="unit">
+          <div class="unit-num">03</div>
+          <div>
+            <h3 class="unit-title">Funding and Financial Sustainability</h3>
+            <p class="unit-body">Addresses the practical architecture of keeping a center alive. Learners engage with funding models, philanthropic relationships, workforce development funding streams, and the financial structures that distinguish centers that thrive from those that struggle. This unit draws directly from the experience of existing centers in the Strickland network.</p>
+          </div>
+        </div>
+        <div class="unit">
+          <div class="unit-num">04</div>
+          <div>
+            <h3 class="unit-title">Long Range Planning</h3>
+            <p class="unit-body">Prepares founders to think beyond launch. A center that opens is not a center that lasts. This unit addresses governance, strategic planning, community integration, organizational culture, and the leadership practices that sustain a center through its inevitable challenges and transitions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="roadmap" id="roadmap">
+    <div class="section-inner">
+      <p class="section-eyebrow">Summer 2026</p>
+      <h2 class="section-title">The development roadmap</h2>
+      <p class="section-body">What gets built between June and September will shape how this network grows, how it credentials the people who lead its centers, and how it presents itself to the donors and communities whose support will determine its future.</p>
+
+      <div class="roadmap-grid">
+        <div class="roadmap-phase">
+          <p class="phase-month">June</p>
+          <h3 class="phase-title">Foundation and Primary Research</h3>
+          <ul class="phase-items">
+            <li>Complete educational framework document</li>
+            <li>Full credentialing architecture delivered</li>
+            <li>Badge structure and specifications</li>
+            <li>Named course catalog</li>
+            <li>Network interviews with center leaders</li>
+          </ul>
+        </div>
+        <div class="roadmap-phase">
+          <p class="phase-month">July</p>
+          <h3 class="phase-title">Structure and Infrastructure</h3>
+          <ul class="phase-items">
+            <li>Complete Founders Course outline</li>
+            <li>Ambassador tier course outline</li>
+            <li>LMS platform selected and configured</li>
+            <li>Badging platform established</li>
+            <li>Technical infrastructure recommendation</li>
+          </ul>
+        </div>
+        <div class="roadmap-phase">
+          <p class="phase-month">August</p>
+          <h3 class="phase-title">Development and Chautauqua</h3>
+          <ul class="phase-items">
+            <li>All four units of Founders Course complete</li>
+            <li>Field Guide finalized as course artifact</li>
+            <li>Assessment design complete</li>
+            <li>Ecosystem materials ready for Chautauqua</li>
+            <li>Early Fellow and Ambassador recognition available</li>
+          </ul>
+        </div>
+        <div class="roadmap-phase">
+          <p class="phase-month">September</p>
+          <h3 class="phase-title">Launch</h3>
+          <ul class="phase-items">
+            <li>Founders Course goes live</li>
+            <li>First cohort begins pathway to certification</li>
+            <li>Credentialing system operational</li>
+            <li>Ecosystem open to the network</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFRASTRUCTURE -->
+  <section class="infrastructure" id="infrastructure">
+    <div class="section-inner">
+      <p class="section-eyebrow">Technical Infrastructure</p>
+      <h2 class="section-title">Built to last. Built to grow.</h2>
+      <p class="section-body">The platform infrastructure recommended for this ecosystem is selected for credibility, scalability, and alignment with the values of this work. Both platforms are in wide use by serious educational and professional organizations. Combined annual cost at launch scale is approximately $800.</p>
+
+      <div class="infra-grid">
+        <div class="infra-card">
+          <p class="infra-tag">Learning Management System</p>
+          <h3 class="infra-name">MoodleCloud</h3>
+          <p class="infra-desc">The most widely used LMS in the world, trusted by universities, nonprofits, and professional organizations across 100+ countries. MoodleCloud provides the managed, mobile-accessible version — no technical team required. Fully brandable. Scales from launch cohort to network-wide deployment without platform migration.</p>
+          <p class="infra-cost">Approx. $130 — $500 / year depending on scale</p>
+        </div>
+        <div class="infra-card">
+          <p class="infra-tag">Digital Badging and Credentialing</p>
+          <h3 class="infra-name">Certifier</h3>
+          <p class="infra-desc">Issues verified digital badges compliant with the Open Badge 3.0 standard — the international standard for portable, verifiable credentials. Badges integrate directly with LinkedIn. Certifier offers a 15% nonprofit discount. Covers up to 1,000 badge issuances per year at the Professional plan level.</p>
+          <p class="infra-cost">Approx. $680 / year with nonprofit discount</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <div class="closing-bg"></div>
+    <div class="closing-inner">
+      <h2 class="closing-title">"The model travels because the values travel."</h2>
+      <p class="closing-sub">Now there is a system designed to carry them.</p>
+      <div class="closing-rule"></div>
+    </div>
+  </section>
+
+  <footer>
+    Prepared by Nichols Education Group for Strickland Global — Confidential — May 2026
+  </footer>
+
+</div>
+
+<script>
+  function checkPassword() {
+    const input = document.getElementById('pw-input').value;
+    const error = document.getElementById('gate-error');
+    if (input === 'Sharinglight') {
+      document.getElementById('gate').classList.add('hidden');
+      const main = document.getElementById('main');
+      main.classList.add('visible');
+    } else {
+      error.classList.add('visible');
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+</script>
+
+</body>
+</html>
